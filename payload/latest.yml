@@ -1,0 +1,9 @@
+version: 1.1.7
+files:
+  - url: Forca-Aliada-Manager-Setup-1.1.7.exe
+    sha512: lGmIxUHgMjjkqy6pFf2pEV/VVAl4RQv/7u2da1HXQWHx6D6n6JZpZWDV3rtwKTz+XGQPiEHSx2Hmk4RbEXVF1g==
+    size: 99790476
+    isAdminRightsRequired: true
+path: Forca-Aliada-Manager-Setup-1.1.7.exe
+sha512: lGmIxUHgMjjkqy6pFf2pEV/VVAl4RQv/7u2da1HXQWHx6D6n6JZpZWDV3rtwKTz+XGQPiEHSx2Hmk4RbEXVF1g==
+releaseDate: '2026-07-22T16:50:22.132Z'

@@ -1,0 +1,38 @@
+name: Publish Manager release assets
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release payload
+        uses: actions/checkout@v4
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Força Aliada Manager ${{ github.ref_name }}
+          body: |
+            ## Correções
+
+            - Restaura a sincronização confiável de jogadores online e da versão real do Manager.
+            - Reconstrói a presença atual a partir do log ao iniciar o agente.
+            - Corrige o filtro de chat para ignorar linhas técnicas e manter mensagens Java e Bedrock.
+            - Mantém o aplicativo operacional quando existe uma atualização disponível.
+            - Integra notificações selecionadas ao sistema de comunicação do app, com preferências e deduplicação.
+
+            Todos os testes de integração, atualização, presença, chat e sincronização foram aprovados.
+          generate_release_notes: false
+          make_latest: true
+          files: |
+            payload/Forca-Aliada-Manager-Setup-*.exe
+            payload/Forca-Aliada-Manager-Setup-*.exe.blockmap
+            payload/latest.yml
+          fail_on_unmatched_files: true

@@ -10,24 +10,48 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout release payload
         uses: actions/checkout@v4
+
+      - name: Validate signed update payload
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          $installer = Get-ChildItem payload\Forca-Aliada-Manager-Setup-$version.exe | Select-Object -First 1
+          $blockmap = Get-ChildItem payload\Forca-Aliada-Manager-Setup-$version.exe.blockmap | Select-Object -First 1
+          if (-not $installer -or -not $blockmap -or -not (Test-Path payload\latest.yml)) {
+            throw 'Installer, blockmap and latest.yml must all match the release tag.'
+          }
+          $signature = Get-AuthenticodeSignature -LiteralPath $installer.FullName
+          if ($signature.Status -ne 'Valid' -or -not $signature.SignerCertificate -or -not $signature.TimeStamperCertificate) {
+            throw 'The Manager installer must have a valid timestamped Authenticode signature.'
+          }
+          $metadata = Get-Content -Raw payload\latest.yml
+          if ($metadata -notmatch "(?m)^version:\s*$([regex]::Escape($version))\s*$") {
+            throw 'latest.yml version does not match the release tag.'
+          }
+          if ($metadata -notmatch [regex]::Escape($installer.Name)) {
+            throw 'latest.yml does not reference this installer.'
+          }
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           name: Forca Aliada Manager ${{ github.ref_name }}
           body: |
-            ## Correcoes
+            ## Força Aliada Manager 2.0
 
-            - Corrige convites remotos pela internet quando a sala do relay precisa ser recuperada.
-            - Impede que um convite com App Key caia silenciosamente para endereco de rede local.
-            - Rebaixa interfaces VPN/tunel na escolha de endereco LAN, evitando convites com NordLynx/OpenVPN.
-            - Mantem fallback local apenas para configuracoes sem App Key.
+            - Login seguro pela conta Força Aliada e registro automático do PC.
+            - Recursos ativados e desativados dinamicamente conforme o plano.
+            - Conexão entre PCs pela organização, com relay autenticado e convite criptografado ponta a ponta.
+            - Conexão manual preservada para uso local e offline.
+            - Métricas agora isoladas por organização.
+            - Interface nativa redesenhada e atualização obrigatória quando exigida pela política do plano.
+            - Pacote protegido por sandbox, Electron Fuses, integridade ASAR e assinatura Authenticode com timestamp.
 
-            Testes de integracao, atualizacao, presenca, chat, sincronizacao e relay aprovados.
+            Testes de integração, atualização, migração, presença, sincronização, relay, autenticação SaaS e segurança aprovados.
           generate_release_notes: false
           make_latest: true
           files: |
